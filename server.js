@@ -43,9 +43,13 @@ app.get('/users/dashboard', checkNotAuthenticated, (req, res) => {
 });
 
 app.get('/users/logout', (req, res) => {
-  req.logOut();
-  req.flash('success_msg', 'You have logged out');
-  res.redirect('/users/login');
+  req.logout(function (err) {
+    if (err) {
+      throw err;
+    }
+    req.flash('success_msg', 'You have logged out');
+    res.redirect('/users/login');
+  })
 });
 
 app.post('/users/register', async (req, res) => {
@@ -53,44 +57,44 @@ app.post('/users/register', async (req, res) => {
   console.log(name, email, password, password2);
   let errors = [];
 
-  if( !name || !email || !password || !password2 ) {
+  if (!name || !email || !password || !password2) {
     errors.push({ msg: "Please fill in all the fields" });
   }
 
-  if(password.length < 6){
+  if (password.length < 6) {
     errors.push({ msg: "Password should be atleast 6 characters long" });
   }
 
-  if(password !== password2){
+  if (password !== password2) {
     errors.push({ msg: "Passwords do not match" });
   }
 
-  if(errors.length > 0){
+  if (errors.length > 0) {
     res.render('register', { errors });
-  }else{
+  } else {
     let hashedPassword = await bcrypt.hash(password, 10);
     console.log(hashedPassword);
 
     pool.query(
       `SELECT * FROM users
-      WHERE email = $1`, 
-      [email], 
+      WHERE email = $1`,
+      [email],
       (err, results) => {
-        if(err){
+        if (err) {
           throw err;
         }
         console.log(results.rows);
-        if(results.rows.length > 0){
+        if (results.rows.length > 0) {
           errors.push({ msg: "Email already registered" });
           res.render('register', { errors });
-        }else{
+        } else {
           pool.query(
             `INSERT INTO users (name, email, password)
             VALUES ($1, $2, $3)
             RETURNING id, password`,
             [name, email, hashedPassword],
             (err, results) => {
-              if(err){
+              if (err) {
                 throw err;
               }
               console.log(results.rows);
@@ -110,15 +114,15 @@ app.post('/users/login', passport.authenticate('local', {
   failureFlash: true
 }));
 
-function checkAuthenticated(req, res, next){
-  if(req.isAuthenticated()){
+function checkAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
     return res.redirect('/users/dashboard');
   }
   next();
 }
 
-function checkNotAuthenticated(req, res, next){
-  if(req.isAuthenticated()){
+function checkNotAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
     return next();
   }
   res.redirect('/users/login');
