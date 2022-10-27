@@ -43,7 +43,7 @@ app.get('/users/dashboard', checkNotAuthenticated, (req, res) => {
 });
 
 app.get('/users/logout', (req, res) => {
-  // req.logout();
+  req.logOut();
   req.flash('success_msg', 'You have logged out');
   res.redirect('/users/login');
 });
