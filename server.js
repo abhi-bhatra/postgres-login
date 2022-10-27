@@ -39,7 +39,7 @@ app.get('/users/login', (req, res) => {
 });
 
 app.get('/users/dashboard', (req, res) => {
-  res.render('dashboard', { user: "Abhinav" });
+  res.render('dashboard', { user: req.user.name });
 });
 
 app.post('/users/register', async (req, res) => {
