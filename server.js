@@ -1,13 +1,13 @@
 const express = require('express');
 const app = express();
 const { pool } = require('./dbConfig');
+
+// new imports for passport and authentication
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const flash = require('express-flash');
 const passport = require('passport');
-
 const initializePassport = require('./passportConfig');
-
 initializePassport(passport);
 
 const PORT = process.env.PORT || 3000;
@@ -21,7 +21,9 @@ app.use(session({
   saveUninitialized: false
 }));
 
+// initialize passport
 app.use(passport.initialize());
+// initialize flash
 app.use(passport.session());
 
 app.use(flash());
@@ -54,7 +56,7 @@ app.get('/users/logout', (req, res) => {
 
 app.post('/users/register', async (req, res) => {
   let { name, email, password, password2 } = req.body;
-  console.log(name, email, password, password2);
+  // console.log(name, email, password, password2);
   let errors = [];
 
   if (!name || !email || !password || !password2) {
@@ -73,7 +75,7 @@ app.post('/users/register', async (req, res) => {
     res.render('register', { errors });
   } else {
     let hashedPassword = await bcrypt.hash(password, 10);
-    console.log(hashedPassword);
+    // console.log(hashedPassword);
 
     pool.query(
       `SELECT * FROM users
@@ -109,14 +111,14 @@ app.post('/users/register', async (req, res) => {
 });
 
 app.post('/users/login', passport.authenticate('local', {
-  successRedirect: '/users/dashboard',
+  successRedirect: '/',
   failureRedirect: '/users/login',
   failureFlash: true
 }));
 
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
-    return res.redirect('/users/dashboard');
+    return res.redirect('/');
   }
   next();
 }
