@@ -43,7 +43,7 @@ app.get('/users/dashboard', (req, res) => {
 });
 
 app.get('/users/logout', (req, res) => {
-  req.logout();
+  // req.logout();
   req.flash('success_msg', 'You have logged out');
   res.redirect('/users/login');
 });
