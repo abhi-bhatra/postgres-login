@@ -42,6 +42,12 @@ app.get('/users/dashboard', (req, res) => {
   res.render('dashboard', { user: req.user.name });
 });
 
+app.get('/users/logout', (req, res) => {
+  req.logOut();
+  req.flash('success_msg', 'You have logged out');
+  res.redirect('/users/login');
+});
+
 app.post('/users/register', async (req, res) => {
   let { name, email, password, password2 } = req.body;
   console.log(name, email, password, password2);
